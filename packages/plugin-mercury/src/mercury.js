@@ -137,7 +137,7 @@ const Mercury = SparkPlugin.extend({
         return callback(reason);
       })
       .catch((reason) => {
-        this.logger.error(`mercury: failed to handle connection failured`, reason);
+        this.logger.error(`mercury: failed to handle connection failure`, reason);
         callback(reason);
       });
   },
