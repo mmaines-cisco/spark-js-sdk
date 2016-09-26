@@ -172,7 +172,8 @@ export default {
    */
   @deprecated(`Please use getUserToken`)
   getAuthorization(...args) {
-    return this.getUserToken(...args);
+    return this.getUserToken(...args)
+      .then((token) => token.toString());
   },
 
   @persist(`@`)
@@ -380,6 +381,11 @@ export default {
         attrs.userTokens.push(attrs.kmsToken);
         Reflect.deleteProperty(attrs, `kmsToken`);
       }
+      if (!attrs.supertoken && process.env.CISCOSPARK_ACCESS_TOKEN) {
+        attrs.supertoken = {
+          access_token: process.env.CISCOSPARK_ACCESS_TOKEN
+        };
+      }
     }
 
     return Reflect.apply(SparkPlugin.prototype.set, this, [attrs, options]);
@@ -411,7 +417,8 @@ export default {
 
     return this.spark.request({
       method: `POST`,
-      uri: this.config.tokenUrl,
+      service: `oauth`,
+      resource: `access_token`,
       form: {
         /* eslint camelcase: [0] */
         grant_type: `urn:ietf:params:oauth:grant-type:saml2-bearer`,
@@ -456,7 +463,8 @@ export default {
 
     return this.spark.request({
       method: `POST`,
-      uri: `{this.config.samlUrl}/${options.orgId}/v2/actions/GetBearerToken/invoke`,
+      service: `saml`,
+      resource: `${options.orgId}/v2/actions/GetBearerToken/invoke`,
       body: pick(options, `name`, `password`),
       shouldRefreshAccessToken: false
     })
