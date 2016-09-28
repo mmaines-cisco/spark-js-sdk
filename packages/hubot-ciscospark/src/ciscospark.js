@@ -22,7 +22,8 @@ module.exports = function make(robot) {
       storage: {
         boundedAdapter: makeBrainAdapter(robot),
         unboundedAdapter: makeBrainAdapter(robot)
-      }
+      },
+      trackingIdPrefix: `hubot-ciscospark`
     }
   });
 
