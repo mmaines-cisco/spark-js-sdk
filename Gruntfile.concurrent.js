@@ -69,6 +69,7 @@ module.exports = function gruntConfig(grunt) {
       html: {
         src: [
           './packages/ciscospark/src/index.js',
+          './packages/spark-core/src/index.js',
           './packages/plugin-phone/src/index.js'
         ],
         options: {

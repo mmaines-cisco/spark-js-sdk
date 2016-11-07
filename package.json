@@ -142,7 +142,7 @@
     "concat-stream": "^1.5.1",
     "dependency-check": "^2.5.3",
     "doctrine": "^1.2.2",
-    "documentation": "^4.0.0-beta5",
+    "documentation": "^4.0.0-beta12",
     "documentation-theme-utils": "^3.0.0",
     "eslint": "^3.5.0",
     "eslint-plugin-mocha": "^4.5.1",
@@ -208,7 +208,6 @@
   },
   "optionalDependencies": {
     "clarify": "^1.0.5",
-    "spark-js-sdk--test-users": "~0.3.3",
     "trace": "^2.0.2"
   },
   "browser": {

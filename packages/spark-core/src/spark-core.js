@@ -58,14 +58,28 @@ const postInterceptors = [
   `RequestLoggerInterceptor`
 ];
 
+/**
+ * @class
+ * @name SparkCore
+ */
 const SparkCore = AmpState.extend({
   derived: {
+    /**
+     * @instance
+     * @memberof SparkCore
+     * @type {StorageAdapter}
+     */
     boundedStorage: {
       deps: [],
       fn() {
         return makeSparkStore(`bounded`, this);
       }
     },
+    /**
+      * @instance
+     * @memberof SparkCore
+     * @type {StorageAdapter}
+     */
     unboundedStorage: {
       deps: [],
       fn() {
@@ -75,35 +89,76 @@ const SparkCore = AmpState.extend({
   },
 
   session: {
+    /**
+     * graph of config data used by SparkCore and its plugins
+     * @instance
+     * @memberof SparkCore
+     * @type {Object}
+     */
     config: {
       type: `object`
     },
+    /**
+     * Entrypoint for making http requests
+     * @instance
+     * @memberof SparkCore
+     * @type {function}
+     */
     request: {
       setOnce: true,
       // It's supposed to be a function, but that's not a type defined in
       // Ampersand
       type: `any`
     },
+    /**
+     * Base token used to assmeble tracking ids for each network requests.
+     * Concatenation of config.trackingIdPrefix and a uuid.
+     * @instance
+     * @memberof SparkCore
+     * @readonly
+     * @type {Object}
+     */
     sessionId: {
       setOnce: true,
       type: `string`
     }
   },
 
+  /**
+   * Delegates to the credentials plugin's `authenticate()` method
+   * @instance
+   * @memberof SparkCore
+   * @returns {Promise}
+   */
   authenticate(...args) {
     return this.credentials.authenticate(...args);
   },
 
+  /**
+   * Delegates to the credentials plugin's `authorize()` method
+   * token.
+   * @instance
+   * @memberof SparkCore
+   * @returns {Promise}
+   */
   authorize(...args) {
     return this.credentials.authorize(...args);
   },
 
+  /**
+   * Delegates to the credentials plugin's `refresh()` method
+   * @instance
+   * @memberof SparkCore
+   * @returns {Promise}
+   */
   refresh(...args) {
     return this.credentials.refresh(...args);
   },
 
   /**
    * Applies the directionally appropriate transforms to the specified object
+   * @instance
+   * @memberof SparkCore
    * @param {string} direction
    * @param {Object} object
    * @returns {Promise}
@@ -139,9 +194,12 @@ const SparkCore = AmpState.extend({
 
   /**
    * Applies the directionally appropriate transform to the specified parameters
+   * @instance
+   * @memberof SparkCore
    * @param {string} direction
    * @param {Object} ctx
    * @param {string} name
+   * @private
    * @returns {Promise}
    */
   applyNamedTransform(direction, ctx, name, ...rest) {
@@ -166,6 +224,13 @@ const SparkCore = AmpState.extend({
       .then(() => last(rest));
   },
 
+  /**
+   * @see AmpersandState#initialize
+   * @instance
+   * @memberof SparkCore
+   * @private
+   * @returns {SparkCore}
+   */
   initialize() {
     this.config = merge({}, config, this.config);
 
@@ -202,6 +267,12 @@ const SparkCore = AmpState.extend({
     this.sessionId = `${get(this, `config.trackingIdPrefix`, `spark-js-sdk`)}_${get(this, `config.trackingIdBase`, uuid.v4())}`;
   },
 
+  /**
+   * Delegates to the credentials plugin's `refresh()` method
+   * @instance
+   * @memberof SparkCore
+   * @returns {Promise}
+   */
   logout(...args) {
     return this.credentials.logout(...args);
   },
@@ -209,6 +280,8 @@ const SparkCore = AmpState.extend({
   /**
    * General purpose wrapper to submit metrics via the metrics plugin (if the
    * metrics plugin is installed)
+   * @instance
+   * @memberof SparkCore
    * @returns {Promise}
    */
   measure(...args) {
@@ -219,6 +292,25 @@ const SparkCore = AmpState.extend({
     return Promise.resolve();
   },
 
+  /**
+   * Uploads a file to using a three-step upload progress. Primarily an internal
+   * method to be used by more specific plugin methods.
+   * @instance
+   * @memberof SparkCore
+   * @param {Object} options Similar in syntax to {@link SparkCore#request} but
+   * with subtly different semantics. Most options are treated as defaults for
+   * each phase and the `phases` property can be used to override properties for
+   * each.
+   * @param {Object} options.phases Each phase is a hash that overrides
+   * top-level options for the specific phase. Keys that begin with a `$` are
+   * functions that can be used to compute their value. They receive the session
+   * object returned by the initialize phase.
+   * @param {Object} options.phases.initialize
+   * @param {Object} options.phases.upload
+   * @param {Object} options.phases.finalize
+   * @private
+   * @returns {Promise}
+   */
   upload(options) {
     if (!options.file) {
       return Promise.reject(new Error(`\`options.file\` is required`));
@@ -264,6 +356,14 @@ const SparkCore = AmpState.extend({
     return promise;
   },
 
+  /**
+   * @see {@link SparkCore#upload()}
+   * @instance
+   * @memberof SparkCore
+   * @param {Object} options
+   * @private
+   * @returns {Promise<HttpResponse>}
+   */
   _uploadPhaseInitialize: function _uploadPhaseInitialize(options) {
     this.logger.debug(`client: initiating upload session`);
 
@@ -275,6 +375,15 @@ const SparkCore = AmpState.extend({
       });
   },
 
+  /**
+   * @see {@link SparkCore#upload()}
+   * @instance
+   * @memberof SparkCore
+   * @param {Object} options
+   * @param {HttpResponse} res
+   * @private
+   * @returns {Promise<HttpResponse>}
+   */
   _uploadApplySession(options, res) {
     const session = res.body;
     [`upload`, `finalize`].reduce((opts, key) => {
@@ -291,6 +400,14 @@ const SparkCore = AmpState.extend({
     }, options.phases);
   },
 
+  /**
+   * @see {@link SparkCore#upload()}
+   * @instance
+   * @memberof SparkCore
+   * @param {Object} options
+   * @private
+   * @returns {Promise<HttpResponse>}
+   */
   @retry
   _uploadPhaseUpload(options) {
     this.logger.debug(`client: uploading file`);
@@ -313,6 +430,14 @@ const SparkCore = AmpState.extend({
     return promise;
   },
 
+  /**
+   * @see {@link SparkCore#upload()}
+   * @instance
+   * @memberof SparkCore
+   * @param {Object} options
+   * @private
+   * @returns {Promise<HttpResponse>}
+   */
   _uploadPhaseFinalize: function _uploadPhaseFinalize(options) {
     this.logger.debug(`client: finalizing upload session`);
 
@@ -325,7 +450,10 @@ const SparkCore = AmpState.extend({
 });
 
 /**
+ * Part of the plugin system. Creates a SparkCore constructor based on the
+ * currently registered plugins.
  * @returns {undefined}
+ * @private
  */
 function makeSparkConstructor() {
   Spark = SparkCore.extend({
@@ -335,6 +463,8 @@ function makeSparkConstructor() {
 }
 
 /**
+ * Constructor that returns a SparkCore instance derived from the currently
+ * loaded plugins
  * @param {Object} attrs
  * @param {Object} attrs.credentials
  * @param {Object} attrs.config
@@ -352,15 +482,26 @@ export default function ProxySpark(...args) {
 }
 
 /**
+ * Entrypoint for plugins to register themselves with SparkCore.
  * @method registerPlugin
- * @param {string} name
- * @param {function} constructor
+ * @param {string} name property on spark at which the plugin will be accessed
+ * @param {SparkPlugin} Plugin
  * @param {Object} options
- * @param {Array<string>} options.proxies
+ * @param {Array<string>} options.proxies Set of properties on the plugin
+ * instance that should be mirrored on the Spark instance
+ * @param {Object} options.payloadTransformer
+ * @param {Array<Object>} options.payloadTransformer.predicates Predicates used
+ * by the {@link PayloadTransformerInterceptor} to detect if a given object
+ * should should be transformed and with which transforms
+ * @param {Array<Object>} options.payloadTransformer.transforms Transforms used
+ * by the {@link PayloadTransformerInterceptor} to transform a given object
  * @param {Object} options.interceptors
+ * @param {boolean} options.replace Set to true if this plugin is replacing a
+ * plugin of the same name. By default, the first plugin to register with a
+ * given name is the plugin that gets that name.
  * @returns {null}
  */
-export function registerPlugin(name, constructor, options) {
+export function registerPlugin(name, Plugin, options) {
   /* eslint complexity: [0] */
   if (constructorCalled) {
     const message = `registerPlugin() should not be called after instantiating a Spark instance`;
@@ -375,7 +516,7 @@ export function registerPlugin(name, constructor, options) {
   options = options || {};
 
   if (!children[name] || options.replace) {
-    children[name] = constructor;
+    children[name] = Plugin;
 
     if (options.proxies) {
       options.proxies.forEach((key) => {
