@@ -23,7 +23,7 @@ describe(`passport-ciscospark`, () => {
         assert.property(query, `scope`);
         assert.equal(query.response_type, `code`);
       })
-  );
+    );
   });
 
   describe(`the callback url`, () => {
