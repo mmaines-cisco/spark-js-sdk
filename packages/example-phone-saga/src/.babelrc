@@ -1,0 +1,15 @@
+{
+  "plugins": [
+    "react-hot-loader/babel",
+    "transform-object-rest-spread",
+    "transform-decorators-legacy",
+    "transform-class-properties",
+    "lodash",
+    "transform-runtime"
+  ],
+  "presets": [
+    ["es2015", {"modules": false}],
+    "react"
+  ],
+  "sourceMaps": true
+}
