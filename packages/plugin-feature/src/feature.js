@@ -26,13 +26,12 @@ const Feature = SparkPlugin.extend({
     options = options || {};
 
     const feature = this.spark.device.features[keyType].get(key);
-
     if (!feature) {
       return Promise.resolve(null);
     }
 
     if (options.full) {
-      return Promise.resolve(feature.serialize());
+      return Promise.resolve(feature);
     }
 
     return Promise.resolve(feature.value);
@@ -61,7 +60,11 @@ const Feature = SparkPlugin.extend({
         val: value
       }
     })
-      .then((res) => this.spark.device.features[keyType].add(res.body, {merge: true}));
+      .then((res) => {
+        const idx = this.spark.device.features[keyType].findIndex((f) => f.key === res.body.key);
+        this.spark.device.features[keyType].splice(idx, 1, res.body);
+        return res.body;
+      });
   },
 
   /**

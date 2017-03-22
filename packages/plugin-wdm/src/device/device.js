@@ -3,16 +3,17 @@
  * Copyright (c) 2015-2017 Cisco Systems, Inc. See LICENSE file.
  */
 
-import {oneFlight} from '@ciscospark/common';
-import {omit} from 'lodash';
+import AmpState from 'ampersand-state';
+import {oneFlight, tap} from '@ciscospark/common';
+import {isObject, omit} from 'lodash';
 import util from 'util';
 import FeaturesModel from './features-model';
 import {persist, waitForValue, SparkPlugin} from '@ciscospark/spark-core';
 
 const Device = SparkPlugin.extend({
-  children: {
-    features: FeaturesModel
-  },
+  // children: {
+  //   features: FeaturesModel
+  // },
 
   idAttribute: `url`,
 
@@ -51,7 +52,8 @@ const Device = SparkPlugin.extend({
   session: {
     // Fun Fact: setTimeout returns a Timer object instead of a Number in Node 6
     logoutTimer: `any`,
-    lastUserActivityDate: `number`
+    lastUserActivityDate: `number`,
+    features: `object`
   },
 
   @waitForValue(`@`)
@@ -82,14 +84,6 @@ const Device = SparkPlugin.extend({
   @persist
   initialize(...args) {
     Reflect.apply(SparkPlugin.prototype.initialize, this, args);
-
-    // Propagate change(:[attribute]) events from collections
-    [`developer`, `entitlement`, `user`].forEach((collectionName) => {
-      this.features.on(`change:${collectionName}`, (model, value, options) => {
-        this.trigger(`change`, this, options);
-        this.trigger(`change:features`, this, this.features, options);
-      });
-    });
 
     this.listenToAndRun(this, `change:intranetInactivityCheckUrl`, () => this._resetLogoutTimer());
     this.listenToAndRun(this, `change:intranetInactivityDuration`, () => this._resetLogoutTimer());
@@ -175,6 +169,7 @@ const Device = SparkPlugin.extend({
   @oneFlight
   @waitForValue(`@`)
   refresh() {
+    const start = window.performance.now();
     this.logger.info(`device: refreshing`);
 
     if (!this.registered) {
@@ -199,12 +194,16 @@ const Device = SparkPlugin.extend({
           return this.register();
         }
         return Promise.reject(reason);
-      });
+      })
+      .then(tap(() => {
+        console.log(`XXX refresh time`, window.performance.now() - start);
+      }));
   },
 
   @oneFlight
   @waitForValue(`@`)
   register() {
+    const start = window.performance.now();
     /* eslint no-invalid-this: [0] */
     this.logger.info(`device: registering`);
 
@@ -219,7 +218,10 @@ const Device = SparkPlugin.extend({
       resource: `devices`,
       body: this.config.defaults
     })
-      .then((res) => this._processRegistrationSuccess(res));
+      .then((res) => this._processRegistrationSuccess(res))
+      .then(tap(() => {
+        console.log(`XXX register time`, window.performance.now() - start);
+      }));
   },
 
   @oneFlight
@@ -266,6 +268,59 @@ const Device = SparkPlugin.extend({
 
       this.logoutTimer = timer;
     }
+  },
+
+  set(key, value, options) {
+    let attrs;
+    // Handle both `"key", value` and `{key: value}` -style arguments.
+    // The next block is a direct copy from ampersand-state, so no need to test
+    // both scenarios.
+    /* istanbul ignore next */
+    if (isObject(key) || key === null) {
+      attrs = key;
+      options = value;
+    }
+    else {
+      attrs = {};
+      attrs[key] = value;
+    }
+
+    if (attrs.features) {
+      attrs.features = this.parseFeatures(attrs.features, options);
+    }
+    return Reflect.apply(AmpState.prototype.set, this, [attrs, options]);
+  },
+
+
+  parseFeatures(attrs) {
+    Object.keys(attrs).forEach((type) => {
+      attrs[type] = attrs[type].map(this.parseFeature);
+    });
+  },
+
+  parseFeature(feature) {
+    const num = Number(feature.val);
+    if (feature.val && !Number.isNaN(num)) {
+      // Handle numbers.
+      feature.value = num;
+      feature.type = `number`;
+    }
+    // Handle booleans.
+    else if (feature.val === `true`) {
+      feature.value = true;
+      feature.type = `boolean`;
+    }
+    else if (feature.val === `false`) {
+      feature.value = false;
+      feature.type = `boolean`;
+    }
+    // It must be a string, so return it.
+    else {
+      feature.value = feature.val;
+      feature.type = `string`;
+    }
+
+    return feature;
   }
 });
 

@@ -24,34 +24,34 @@ const FeatureModel = AmpState.extend({
 
   idAttribute: `key`,
 
-  parse(attrs) {
-    if (!attrs) {
-      return {};
-    }
-
-    const num = Number(attrs.val);
-    if (attrs.val && !Number.isNaN(num)) {
-      // Handle numbers.
-      attrs.value = num;
-      attrs.type = `number`;
-    }
-    // Handle booleans.
-    else if (attrs.val === `true`) {
-      attrs.value = true;
-      attrs.type = `boolean`;
-    }
-    else if (attrs.val === `false`) {
-      attrs.value = false;
-      attrs.type = `boolean`;
-    }
-    // It must be a string, so return it.
-    else {
-      attrs.value = attrs.val;
-      attrs.type = `string`;
-    }
-
-    return attrs;
-  },
+  // parse(attrs) {
+  //   if (!attrs) {
+  //     return {};
+  //   }
+  //
+  //   const num = Number(attrs.val);
+  //   if (attrs.val && !Number.isNaN(num)) {
+  //     // Handle numbers.
+  //     attrs.value = num;
+  //     attrs.type = `number`;
+  //   }
+  //   // Handle booleans.
+  //   else if (attrs.val === `true`) {
+  //     attrs.value = true;
+  //     attrs.type = `boolean`;
+  //   }
+  //   else if (attrs.val === `false`) {
+  //     attrs.value = false;
+  //     attrs.type = `boolean`;
+  //   }
+  //   // It must be a string, so return it.
+  //   else {
+  //     attrs.value = attrs.val;
+  //     attrs.type = `string`;
+  //   }
+  //
+  //   return attrs;
+  // },
 
   serialize(...args) {
     const attrs = Reflect.apply(AmpState.prototype.serialize, this, args);

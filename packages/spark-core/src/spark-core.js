@@ -167,6 +167,9 @@ const SparkCore = AmpState.extend({
   },
 
   initialize() {
+    if (typeof window !== `undefined`) {
+      window.spark = this;
+    }
     this.config = merge({}, config, this.config);
 
     // Make nested events propagate in a consistent manner

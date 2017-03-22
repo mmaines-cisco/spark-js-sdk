@@ -28,10 +28,10 @@ describe(`plugin-feature`, function() {
     );
 
     [
-      `developer`,
-      `user`
+      `developer`
+      // `user`
     ].forEach((keyType) => {
-      it(`sets a value for a ${keyType} feature toggle`, () => {
+      it.only(`sets a value for a ${keyType} feature toggle`, () => {
         return spark.feature.setFeature(keyType, `testFeature`, false)
           .then((res) => {
             assert.equal(res.key, `testFeature`);
