@@ -19,8 +19,11 @@ export default class StorageAdapterLocalStorage {
    * @constructs {StorageAdapterLocalStorage}
    * @param {string} basekey localStorage key underwhich all namespaces will be
    * stored
+   * @param {Storage} _localStorage defaults to localStorage; primarily here for
+   * testing, but could also be used to override localStorage with e.g.
+   * sessionStorage
    */
-  constructor(basekey) {
+  constructor(basekey, _localStorage = localStorage) {
     /**
      * localStorage binding
      */
@@ -40,7 +43,7 @@ export default class StorageAdapterLocalStorage {
        * @returns {rawData}
        */
       _getRawData() {
-        const rawData = localStorage.getItem(basekey);
+        const rawData = _localStorage.getItem(basekey);
         return rawData ? JSON.parse(rawData) : {};
       }
 
@@ -62,7 +65,7 @@ export default class StorageAdapterLocalStorage {
         const allData = this._getRawData();
         allData[namespaces.get(this)] = data;
 
-        localStorage.setItem(basekey, JSON.stringify(allData));
+        _localStorage.setItem(basekey, JSON.stringify(allData));
       }
 
       /**
@@ -72,7 +75,7 @@ export default class StorageAdapterLocalStorage {
        */
       clear() {
         loggers.get(this).info(`local-storage-store-adapter: clearing localStorage`);
-        return Promise.resolve(localStorage.clear());
+        return Promise.resolve(_localStorage.clear());
       }
 
       /**
