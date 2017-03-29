@@ -4,7 +4,7 @@
  * @private
  */
 
-import {Defer, oneFlight} from '@ciscospark/common';
+import {Defer, oneFlight, tap} from '@ciscospark/common';
 import {NotFoundError} from './errors';
 import {result} from 'lodash';
 
@@ -18,7 +18,7 @@ const defers = new WeakMap();
  */
 export default function makeSparkPluginStorage(type, context) {
   /**
-   * Interface between SparkPlugin and Spark#boundeStorage or
+   * Interface between SparkPlugin and Spark#boundedStorage or
    * Spark#unboundedStorage
    */
   class SparkPluginStorage {
@@ -75,13 +75,23 @@ export default function makeSparkPluginStorage(type, context) {
      * @returns {Promise}
      */
     put(...args) {
-      return context.spark[`${type}Storage`].put(context.getNamespace(), ...args);
+      return context.spark[`${type}Storage`].put(context.getNamespace(), ...args)
+        .then(tap(() => {
+          try {
+            const [key] = args;
+            context.spark[context.getNamespace().toLowerCase()].trigger(`store:${args[0]}`);
+            context.spark[context.getNamespace().toLowerCase()].trigger(`store:${args[0]}:${key}`);
+          }
+          catch (err) {
+            context.spark.logger.warn(err);
+          }
+        }));
     }
 
     /**
      * Returns a Promise that won't resolve until the value specified by key has
      * been attempted to be loaded from the store. This allows us to lazily
-     * prevent certain method from executing until the specified keys have been
+     * prevent certain methods from executing until the specified keys have been
      * retrieved from the store.
      * @param {string} key
      * @returns {Promise}

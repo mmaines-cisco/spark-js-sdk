@@ -118,6 +118,11 @@ function makeSpark(options) {
     initialize: function initialize(attrs) {
       this.boundedStorage = makeMockStorage(attrs && attrs.initialBoundedStorage);
       this.unboundedStorage = makeMockStorage(attrs && attrs.initialUnboundedStorage);
+    },
+    when: function when(event) {
+      return new Promise(function onEvent(resolve) {
+        this.once(event, resolve);
+      }.bind(this));
     }
   }));
 
