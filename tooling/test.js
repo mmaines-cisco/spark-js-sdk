@@ -27,7 +27,7 @@ const {
 const {start, stop} = require(`./util/server`);
 const spawn = require(`./util/spawn`);
 const yargs = require(`yargs`);
-
+const {readFile} = require(`fs-promise`);
 const {watchSauce} = require(`./karma`);
 
 require(`babel-register`)({
@@ -39,6 +39,14 @@ require(`babel-register`)({
   ],
   sourceMaps: true
 });
+
+async function checkForKmsFailure(filename) {
+  const data = await readFile(filename);
+  if (data.includes(`Failed to resolve authorizatino token in KmsMessage`)) {
+    throw new Error(`${filename} failed due to KMS/CI flakiness`);
+  }
+}
+
 
 const argv = yargs
   .env(``)
@@ -182,7 +190,7 @@ async function runMochaSuite(packageName, suite, files) {
           reject(new Error(`No mocha reports generated for ${packageName}`));
         }
         else {
-          resolve();
+          resolve(Promise.all(reports.map(checkForKmsFailure)));
         }
         return;
       }
@@ -221,7 +229,7 @@ async function runKarmaSuite(packageName) {
           reject(new Error(`No karma reports generated for ${packageName}`));
         }
         else {
-          resolve();
+          resolve(Promise.all(reports.map(checkForKmsFailure)));
         }
         return;
       }
