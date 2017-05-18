@@ -322,7 +322,7 @@ ansiColor('xterm') {
             }
 
             stage('test') {
-              timeout(45) {
+              timeout(75) {
                 def exitCode = sh script: "./tooling/test.sh", returnStatus: true
 
                 junit 'reports/junit/**/*.xml'
