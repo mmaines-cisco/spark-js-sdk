@@ -7,6 +7,7 @@
 
 const path = require(`path`);
 const makeBrowsers = require(`./browsers-ng`);
+const {constants} = require(`karma`);
 /* eslint-disable global-require */
 
 module.exports = function configureKarma(config) {
@@ -53,6 +54,14 @@ function makeConfig(packageName, argv) {
         `envify`
       ]
     },
+
+    // browserConsoleLogOptions: {
+    //   level: `trace`,
+    //   format: `%b %T: %m`,
+    //   terminal: true
+    // },
+
+    logLevel: constants.LOG_DEBUG,
 
     browserNoActivityTimeout: 240000,
 

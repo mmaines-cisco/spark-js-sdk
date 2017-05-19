@@ -75,7 +75,7 @@ module.exports = function(grunt) {
     const outPath = path.join(__dirname, `..`, `packages`, `node_modules`, process.env.PACKAGE, `browsers.processed.js`);
 
     try {
-      fs.statSync(path.join(__dirname, `selenium`));
+      fs.statSync(path.resolve(`.tmp`, `selenium`));
     }
     catch (err) {
       console.warn(`Could not find firefox profiles folder at ${__dirname}/selenium; expect call tests in firefox to fail`);
@@ -85,13 +85,13 @@ module.exports = function(grunt) {
     const browsers = require(inPath)();
     const done = this.async();
     Promise.all([
-      copy(path.join(__dirname, `selenium`, `mac`))
+      copy(path.resolve(`.tmp`, `selenium`, `mac`))
         .then(encode),
-      copy(path.join(__dirname, `selenium`, `linux`))
+      copy(path.resolve(`.tmp`, `selenium`, `linux`))
         .then(encode),
-      copy(path.join(__dirname, `selenium`, `windows`))
-        .then(encode),
-      rsync(path.join(__dirname, `selenium`, `mac`), path.join(__dirname, `..`, `.tmp`, `selenium`))
+      copy(path.resolve(`.tmp`, `selenium`, `windows`))
+        .then(encode)
+      // rsync(path.resolve(`.tmp`, `selenium`, `mac`), path.join(__dirname, `..`, `.tmp`, `selenium`))
     ])
       .then((profiles) => {
         const platforms = {
