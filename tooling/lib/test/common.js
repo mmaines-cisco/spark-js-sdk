@@ -51,6 +51,10 @@ exports.expectNoKmsErrors = async function expectNoKmsErrors(reports) {
       debug(`${reportFile} contains kms errors`);
       throw new Error(`Expected ${reportFile} to not contain kms errors`);
     }
+    if (report.includes(`expected 'This message cannot be decrypted' to equal `) || `expected { Object (id, objectType, ...) } to have a property 'encryptedDisplayName'`) {
+      debug(`${reportFile} contains likely kms errors`);
+      throw new Error(`Expected ${reportFile} to not contain likely kms errors`);
+    }
     debug(`${reportFile} does not contain kms errors`);
   }
 };
