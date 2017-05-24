@@ -80,6 +80,7 @@ module.exports = function(packageName, argv) {
     browsers = require(`./packages/node_modules/${packageName}/browsers.js`)(browsers);
   }
   catch (err) {
+    console.error(err);
     if (err.code !== `MODULE_NOT_FOUND`) {
       throw err;
     }
