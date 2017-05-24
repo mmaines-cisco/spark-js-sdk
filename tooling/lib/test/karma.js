@@ -16,10 +16,8 @@ exports.test = async function test(options, packageName, files) {
 
   const cfg = makeConfig(packageName, options);
 
-  if (packageName === `@ciscospark/plugin-phone`) {
+  if (packageName === `@ciscospark/plugin-phone` || packageName.includes(`media-adapter`)) {
     await inject(cfg.customLaunchers);
-    console.log(cfg.customLaunchers)
-    require(`assert`)(cfg.customLaunchers.sl_firefox_latest_osx12.firefox_profile);
   }
 
   if (options.xunit) {
