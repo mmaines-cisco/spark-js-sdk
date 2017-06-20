@@ -113,9 +113,6 @@
     "body-parser": "^1.17.1",
     "bowser": "^1.6.0",
     "browser-saveas": "^1.0.1",
-    "browserify": "^14.4.0",
-    "browserify-istanbul": "^2.0.0",
-    "browserify-middleware": "^7.1.0",
     "btoa": "^1.1.2",
     "builtins": "^1.0.3",
     "chai": "^4.0.2",
@@ -188,13 +185,13 @@
     "jsdoc": "~3.3.0-beta3",
     "jsonwebtoken": "^7.3.0",
     "karma": "^1.1.1",
-    "karma-browserify": "^5.1.0",
     "karma-chrome-launcher": "^2.0.0",
     "karma-coverage": "^1.1.0",
     "karma-firefox-launcher": "^1.0.0",
     "karma-junit-reporter": "^1.1.0",
     "karma-mocha": "^1.1.1",
     "karma-mocha-reporter": "^2.0.4",
+    "karma-rollup-plugin": "^0.2.4",
     "karma-safari-launcher": "^1.0.0",
     "karma-sauce-launcher": "^1.0.0",
     "lint-staged": "^3.3.0",
@@ -264,7 +261,10 @@
     "require-dir": "^0.3.1",
     "rimraf": "^2.6.1",
     "rollup": "^0.43.0",
+    "rollup-plugin-babel": "^2.7.1",
     "rollup-plugin-commonjs": "^8.0.2",
+    "rollup-plugin-node-builtins": "^2.1.2",
+    "rollup-plugin-node-globals": "^1.1.0",
     "rollup-plugin-node-resolve": "^3.0.0",
     "sdp-transform": "^2.3.0",
     "setimmediate": "^1.0.5",
@@ -306,11 +306,6 @@
     "./src/util/html/html.js": "./src/util/html/html.shim.js",
     "./src/lib/image/image.js": "./src/lib/image/image.shim.js",
     "./src/test/test.js": "./src/test/test.shim.js"
-  },
-  "browserify": {
-    "transform": [
-      "envify"
-    ]
   },
   "publishConfig": {
     "registry": "http://engci-maven-master.cisco.com/artifactory/api/npm/webex-release-npm"

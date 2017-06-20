@@ -19,7 +19,7 @@ function makeConfig(packageName, argv) {
   const launchers = makeBrowsers(packageName, argv);
 
   const preprocessors = {
-    'packages/node_modules/**/src/**/*.js': [`browserify`]
+    // 'packages/node_modules/**/src/**/*.js': [`rollup`]
   };
 
   const files = [];
@@ -27,15 +27,16 @@ function makeConfig(packageName, argv) {
   if (!argv || argv.unit) {
     const unitTestPath = `packages/node_modules/${packageName}/test/unit/spec/**/*.js`;
     files.push(unitTestPath);
-    preprocessors[unitTestPath] = [`browserify`];
+    preprocessors[unitTestPath] = [`rollup`];
   }
   if (!argv || argv.integration) {
     const integrationTestPath = `packages/node_modules/${packageName}/test/integration/spec/**/*.js`;
     files.push(integrationTestPath);
-    preprocessors[integrationTestPath] = [`browserify`];
+    preprocessors[integrationTestPath] = [`rollup`];
   }
 
   let cfg = {
+    logLevel: `debug`,
     basePath: `.`,
 
     browserDisconnectTimeout: 10000,
@@ -43,11 +44,6 @@ function makeConfig(packageName, argv) {
     browserDisconnectTolerance: 3,
 
     browsers: Object.keys(launchers),
-
-    browserify: {
-      debug: true,
-      watch: argv && argv.karmaDebug
-    },
 
     browserNoActivityTimeout: 240000,
 
@@ -63,7 +59,6 @@ function makeConfig(packageName, argv) {
     files,
 
     frameworks: [
-      `browserify`,
       `mocha`
     ],
 
@@ -95,6 +90,8 @@ function makeConfig(packageName, argv) {
     reporters: [
       `mocha`
     ],
+
+    rollupPreprocessor: require(`./rollup.config.js`),
 
     singleRun: !(argv && argv.karmaDebug),
 

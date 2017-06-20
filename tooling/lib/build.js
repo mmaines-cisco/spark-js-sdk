@@ -67,10 +67,14 @@ async function buildPackage(packageName) {
   config.babelrc = false;
 
   const browserConfig = cloneDeep(config);
-  Reflect.deleteProperty(browserConfig.presets.find((item) => Array.isArray(item) && item[0] === `env`)[1].targets, `node`);
+  const browserEnvConfig = browserConfig.presets.find((item) => Array.isArray(item) && item[0] === `env`)[1];
+  Reflect.deleteProperty(browserEnvConfig.targets, `node`);
+  browserEnvConfig.modules = `commonjs`;
 
   const nodeConfig = cloneDeep(config);
-  Reflect.deleteProperty(nodeConfig.presets.find((item) => Array.isArray(item) && item[0] === `env`)[1].targets, `browsers`);
+  const nodeEnvConfig = nodeConfig.presets.find((item) => Array.isArray(item) && item[0] === `env`)[1];
+  Reflect.deleteProperty(nodeEnvConfig.targets, `browsers`);
+  nodeEnvConfig.modules = `commonjs`;
 
   const moduleConfig = cloneDeep(nodeConfig);
   moduleConfig.presets.find((item) => Array.isArray(item) && item[0] === `env`)[1].modules = false;
