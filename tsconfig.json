@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "checkJs": true,
+    "experimentalDecorators": true,
+    "moduleResolution": "Node",
+    "noEmit": true,
+    "target": "esnext"
+  },
+  "include": [
+    "packages/node_modules/@ciscospark/*/src",
+    "packages/node_modules/*/src"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
