@@ -15,13 +15,8 @@ module.exports = {
   handler: wrapHandler(async ({fortests}) => {
     let packages;
     if (fortests) {
-      const changed = await updated({});
-      if (changed.includes(`tooling`)) {
-        packages = await list();
-      }
-      else {
-        packages = await updated({dependents: true});
-      }
+      // const changed = await updated({});
+      packages = await updated({dependents: true});
 
       if (packages.includes(`legacy`)) {
         packages = packages.filter((p) => p !== `legacy`);
