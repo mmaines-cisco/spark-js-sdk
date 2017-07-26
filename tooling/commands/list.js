@@ -23,11 +23,12 @@ module.exports = {
       const changed = await updated({});
       if (changed.includes(`tooling`)) {
         packages = await list();
-        packages.push(`legacy`);
       }
       else {
         packages = await updated({dependents: true});
       }
+      // We don't want to run legacy tests in validated merge
+      packages = packages.filter((p) => p !== `legacy`);
     }
     else {
       packages = await list();
