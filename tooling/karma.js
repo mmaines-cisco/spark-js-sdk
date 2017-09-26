@@ -1,6 +1,8 @@
-/* eslint-disable no-console */
+/*!
+ * Copyright (c) 2015-2017 Cisco Systems, Inc. See LICENSE file.
+ */
 
-'use strict';
+/* eslint-disable no-console */
 
 const debug = require(`debug`)(`monorepo:test:karma`);
 const {readFile} = require(`fs-promise`);
